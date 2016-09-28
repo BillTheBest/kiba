@@ -72,6 +72,18 @@ class TestRunner < Kiba::Test
 
     assert_equal [:pre_processor_executed, :source_instantiated], calls
   end
+
+  def test_no_error_raised_if_destination_close_not_implemented
+    # NOTE: this fake destination does not implement `close`
+    destination_instance = MiniTest::Mock.new
+
+    mock_destination_class = MiniTest::Mock.new
+    mock_destination_class.expect(:new, destination_instance)
+    
+    control = Kiba::Control.new
+    control.destinations << { klass: mock_destination_class }
+    Kiba.run(control)
+  end
   
   class SourceWithNoInitializeArgument
   end
@@ -93,4 +105,5 @@ class TestRunner < Kiba::Test
     # TODO: track down original ETL file/line and report that back
     # TODO: include inner exception but make sure it shows up (like nestegg)
   end
+
 end
