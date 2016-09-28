@@ -72,4 +72,25 @@ class TestRunner < Kiba::Test
 
     assert_equal [:pre_processor_executed, :source_instantiated], calls
   end
+  
+  class SourceWithNoInitializeArgument
+  end
+    
+  def test_error_message
+    control = Kiba::Control.new
+    control.sources << {
+      klass: SourceWithNoInitializeArgument,
+      args: ['extra argument']
+    }
+    
+    exception = assert_raises Kiba::Runner::ComponentInstantiationError do
+      Kiba.run(control)
+    end
+    # this gives a bit of context on the type of component
+    assert_includes exception.message, "Kiba source"
+    # the class name should be given in clear
+    assert_includes exception.message, SourceWithNoInitializeArgument.name
+    # TODO: track down original ETL file/line and report that back
+    # TODO: include inner exception but make sure it shows up (like nestegg)
+  end
 end
